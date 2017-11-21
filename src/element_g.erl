@@ -4,10 +4,18 @@
 -compile(export_all).
 
 render_element(Record) ->
+   	case element(#element.postback, Record) of
+        undefined -> Id = element(#element.id, Record);
+        Postback ->
+            Id = case element(#element.id, Record) of undefined -> nitro:temp_id(); I -> I end,
+            nitro:wire(#event{type=click, postback=Postback, target=Id,
+                source=element(#element.source, Record), delegate=element(#element.delegate, Record),
+                validation=element(#element.validate, Record)})
+    end,
 	wf_tags:emit_tag(<<"g">>, nitro:render(Record#g.body),
 	lists:append([
 		[
-			{<<"id">>, Record#g.id},
+			{<<"id">>, Id},
 			{<<"class">>, Record#g.class},
 			{<<"style">>, Record#g.style},
 			{<<"transform">>, Record#g.transform},
